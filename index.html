@@ -117,12 +117,6 @@
     display: block; white-space: nowrap; margin-top: 4px;
   }
   .hero-sub { color: var(--ink-3); font-size: 15px; max-width: 500px; margin-top: 24px; line-height: 1.55; }
-  
-  .hero-right { display: flex; gap: 32px; align-items: flex-end; }
-  .hero-qr { background: white; padding: 12px; border: 1px solid var(--line); border-radius: 8px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-  .hero-qr img { width: 80px; height: 80px; display: block; margin: 0 auto; }
-  .hero-qr div { font-size: 11px; color: var(--ink-2); margin-top: 8px; font-weight: 700; letter-spacing: -0.02em; }
-  
   .hero-stats { display: flex; flex-direction: column; gap: 4px; text-align: right; }
   .hero-stats .big { font-family: 'Fraunces', serif; font-size: 56px; line-height: 1; color: var(--ink); font-weight: 300; letter-spacing: -0.03em; }
   .hero-stats .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-3); font-weight: 600; }
@@ -618,8 +612,6 @@
     .container { padding: 0 20px; }
     .brand-tag { display: none; }
     .hero { grid-template-columns: 1fr; padding: 40px 0 32px; gap: 20px;}
-    .hero-right { justify-content: flex-start; }
-    .hero-qr { display: none !important; }
     .hero-stats { text-align: left; flex-direction: row; align-items: baseline; gap: 12px; }
     .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px 16px; }
     .card-name { font-size: 14px; min-height: 38px; }
@@ -657,6 +649,12 @@
       <span class="brand-mark">B-MARKET</span>
     </div>
     <div class="flex items-center gap-4">
+      
+      <!-- 스토어 전체 접속 QR 버튼 -->
+      <button onclick="openStoreQR()" class="btn-outline" style="padding: 6px 12px; border-radius: 999px; font-size: 11px; display: flex; align-items: center; gap: 6px; font-weight: 700; height: 28px;">
+        <i class="fa-solid fa-qrcode"></i> 스토어 QR
+      </button>
+
       <!-- 동기화 상태 뱃지 -->
       <div class="sync-badge" id="sync-badge" title="상태 메시지">
         <div class="sync-dot"></div>
@@ -696,19 +694,13 @@
     <div class="hero">
       <div>
         <div class="hero-eyebrow"><span class="dot"></span><span>Live · 이번 주 특가</span></div>
+        <!-- 텍스트 줄바꿈 방지 적용 -->
         <h1>버리기엔 아까운 좋은 것들.<br><em style="white-space: nowrap;">사내 임직원 한정 특가</em></h1>
         <p class="hero-sub">기능과 품질에는 전혀 이상이 없는 B급 제품 및 전시 상품을 사내 임직원 전용 특별 할인가로 제공합니다. 재판매를 엄격히 금지합니다.</p>
       </div>
-      <div class="hero-right">
-        <!-- 항상 노출되는 인라인 QR 코드 (모바일 접속 시엔 숨김 처리됨) -->
-        <div class="hero-qr">
-          <img id="inline-qr-image" src="" alt="Store QR">
-          <div>모바일 바로 접속</div>
-        </div>
-        <div class="hero-stats">
-          <div class="big" id="hero-count">—</div>
-          <div class="label">Available Items</div>
-        </div>
+      <div class="hero-stats">
+        <div class="big" id="hero-count">—</div>
+        <div class="label">Available Items</div>
       </div>
     </div>
 
@@ -925,6 +917,24 @@
   </div>
 </div>
 
+<!-- ===== STORE QR MODAL ===== -->
+<div class="modal-overlay" id="qr-modal">
+  <div class="modal" style="max-width: 320px; margin: auto; text-align: center;">
+    <div class="modal-head">
+      <h2 class="modal-title">스토어 모바일 접속</h2>
+      <button class="modal-close" onclick="closeQRModal()">×</button>
+    </div>
+    <div class="modal-body" style="padding: 32px 24px;">
+      <h4 id="qr-item-name" style="font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--ink);">사내 B-MARKET</h4>
+      <p style="font-size: 13px; color: var(--ink-3); margin-bottom: 24px;">스마트폰 카메라로 스캔하여 스토어에 접속하세요.</p>
+      <div style="display: inline-block; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: white; margin-bottom: 24px;">
+        <img id="qr-image" src="" alt="QR Code" style="width: 160px; height: 160px; display: block;">
+      </div>
+      <button class="btn btn-outline" style="width: 100%;" onclick="closeQRModal()">닫기</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== TOAST ===== -->
 <div class="toast" id="toast"><span class="check"></span><span id="toast-msg"></span></div>
 
@@ -932,14 +942,14 @@
 // =====================================================================
 //                          GOOGLE SHEETS API
 // =====================================================================
-const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwGZDj7AJtKF1hIHEvvavT6oVDJhJh-hgjKE59j5Gss6GGEAk3RRahs8lVQ6AOVsetKQg/exec";
+const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwI0tOUQmoVxbdG3E1i_6xhRdIaHKzOKCj0Uk1jNRe-K6zZcPTgaU9ow6vg6bV_5i372Q/exec";
 
 // =====================================================================
 //                          STATE & STORAGE
 // =====================================================================
 const LOCAL_STORAGE_KEY = 'bmarket_my_orders_v1';
 
-// 초기 더미 데이터
+// 초기 더미 데이터 (서버 연결 실패 시 화면이 깨지지 않도록 유지)
 const defaultProducts = [
     { id: 1001, name: "참나무 훈연 바베큐 햄 500g", category: "햄", grade: "A", originalPrice: 15000, discountPrice: 4500, stock: 12, exp: "2026-05-20", desc: "외부 종이 패키지 찌그러짐 (진공포장 정상)", image: "", created: "2026-04-30" },
     { id: 1002, name: "육즙가득 모둠 소시지 1kg", category: "소시지", grade: "B", originalPrice: 22000, discountPrice: 6600, stock: 30, exp: "2026-05-05", desc: "유통기한 임박 상품 (섭취에는 지장 없음)", image: "", created: "2026-04-30" },
@@ -955,8 +965,9 @@ let state = {
 let isAdminAuthenticated = false;
 let currentProductId = null;
 let isSyncing = false;
-let isLocalMode = false;
+let isLocalMode = false; // 서버 통신 실패 시 사용할 로컬 모드 플래그
 
+// 내 기기에서 신청한 주문 ID를 추적하여 '신청취소' 기능을 제공하기 위함
 let myOrderIds = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
 
 function saveMyOrder(orderId) {
@@ -975,7 +986,7 @@ function removeMyOrder(orderId) {
 function setSyncStatus(status) {
   const badge = document.getElementById('sync-badge');
   const text = document.getElementById('sync-text');
-  badge.className = 'sync-badge'; 
+  badge.className = 'sync-badge'; // reset
   if (status === 'syncing') {
     badge.classList.add('syncing');
     text.textContent = '동기화 중...';
@@ -995,9 +1006,16 @@ function setSyncStatus(status) {
 async function fetchStateFromServer() {
   try {
     setSyncStatus('syncing');
-    if (!GOOGLE_SHEET_API_URL || !GOOGLE_SHEET_API_URL.startsWith("http")) throw new Error("Invalid API URL");
+    
+    // API URL이 설정되어 있는지 확인합니다
+    if (!GOOGLE_SHEET_API_URL || !GOOGLE_SHEET_API_URL.startsWith("http")) {
+      throw new Error("Invalid API URL");
+    }
 
-    const response = await fetch(GOOGLE_SHEET_API_URL + "?action=read", { method: 'GET' });
+    const response = await fetch(GOOGLE_SHEET_API_URL + "?action=read", { 
+      method: 'GET'
+    });
+    
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     
     const data = await response.json();
@@ -1008,8 +1026,11 @@ async function fetchStateFromServer() {
     setSyncStatus('success');
     isLocalMode = false;
   } catch (error) {
-    console.warn("[B-MARKET] 구글 시트 통신 실패. 로컬 모드로 전환됩니다.", error);
+    // 개발자 도구에만 오류를 조용히 남기고, 사용자에게는 앱이 멈추지 않도록 로컬 모드로 우회합니다.
+    console.warn("[B-MARKET] 구글 시트 통신 실패. 로컬 모드로 전환됩니다. (CORS 또는 권한 문제일 수 있습니다)", error);
     setSyncStatus('error');
+    
+    // 서버 연결 실패 시, 로컬 데이터를 사용하여 테스트 가능하도록 Fallback
     toast("사내망 보안 정책으로 인해 임시 로컬 모드로 작동합니다.");
     state.products = JSON.parse(localStorage.getItem('bmarket_local_products')) || defaultProducts;
     state.orders = JSON.parse(localStorage.getItem('bmarket_local_orders')) || [];
@@ -1022,6 +1043,7 @@ async function fetchStateFromServer() {
 
 async function saveStateToServer() {
   if (isLocalMode) {
+    // 로컬 모드일 경우 브라우저 저장소에만 저장
     localStorage.setItem('bmarket_local_products', JSON.stringify(state.products));
     localStorage.setItem('bmarket_local_orders', JSON.stringify(state.orders));
     return;
@@ -1031,8 +1053,12 @@ async function saveStateToServer() {
     setSyncStatus('syncing');
     await fetch(GOOGLE_SHEET_API_URL, {
       method: "POST",
-      headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify({ action: "write", products: state.products, orders: state.orders })
+      headers: { "Content-Type": "text/plain" }, // CORS Preflight 방지를 위해 text/plain 사용
+      body: JSON.stringify({
+        action: "write",
+        products: state.products,
+        orders: state.orders
+      })
     });
     setSyncStatus('success');
   } catch (error) {
@@ -1140,6 +1166,7 @@ function renderProducts() {
     const sold = p.stock <= 0;
     const dRate = discountRate(p.originalPrice, p.discountPrice);
     
+    // 내가 주문한(pending 상태) 내역 필터링
     const myPendingOrders = state.orders.filter(o => o.productId === p.id && o.status === 'pending' && myOrderIds.includes(o.id));
     const myPendingQty = myPendingOrders.reduce((sum, o) => sum + o.qty, 0);
     const hasPurchased = myPendingQty > 0;
@@ -1277,36 +1304,46 @@ async function cancelMyPurchase(productId) {
   const product = state.products.find(p => p.id === productId);
   if(!product) return;
   
+  // Find my pending orders for this product
   const myPendingOrders = state.orders.filter(o => o.productId === productId && o.status === 'pending' && myOrderIds.includes(o.id));
   if(myPendingOrders.length === 0) return;
   
   const totalQtyToRestore = myPendingOrders.reduce((sum, o) => sum + o.qty, 0);
 
   if(confirm(`'${product.name}' 구매 신청(${totalQtyToRestore}개)을 취소하시겠습니까?`)) {
+    // 원상 복구
     product.stock += totalQtyToRestore;
     
+    // state.orders 배열에서 제거
     myPendingOrders.forEach(mo => {
       state.orders = state.orders.filter(o => o.id !== mo.id);
-      removeMyOrder(mo.id); 
+      removeMyOrder(mo.id); // localStorage에서도 제거
     });
 
     renderStoreUI();
     if(isAdminAuthenticated) renderAdminUI();
     toast("구매 신청이 정상적으로 취소되었습니다.");
     
+    // 서버에 반영
     await saveStateToServer();
   }
 }
 
 // =====================================================================
-//                          INLINE HOMEPAGE QR LOGIC
+//                          GLOBAL STORE QR LOGIC
 // =====================================================================
-function generateInlineQR() {
+function openStoreQR() {
+  // 현재 접속중인 HTML의 최상위 주소(URL)을 가져옵니다.
   const baseUrl = window.location.href.split('?')[0].split('#')[0];
-  const qrImg = document.getElementById('inline-qr-image');
-  if(qrImg) {
-    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(baseUrl)}&color=111827&bgcolor=ffffff`;
-  }
+  
+  // QR 코드 이미지 생성 및 모달 팝업 표시
+  document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(baseUrl)}&color=111827&bgcolor=ffffff`;
+  document.getElementById('qr-modal').classList.add('show');
+}
+
+function closeQRModal() {
+  document.getElementById('qr-modal').classList.remove('show');
+  document.getElementById('qr-image').src = '';
 }
 
 // =====================================================================
@@ -1355,6 +1392,7 @@ function updatePendingBadge() {
 //                          ADMIN — DISPATCH (출고)
 // =====================================================================
 function renderDispatch() {
+  // group orders by productId
   const groups = {};
   state.orders.forEach(o => {
     if (!groups[o.productId]) groups[o.productId] = [];
@@ -1374,6 +1412,7 @@ function renderDispatch() {
     return;
   }
 
+  // sort: pending first by total qty desc
   productIds.sort((a, b) => {
     const pa = groups[a].filter(o => o.status === 'pending').reduce((s, o) => s + o.qty, 0);
     const pb = groups[b].filter(o => o.status === 'pending').reduce((s, o) => s + o.qty, 0);
@@ -1629,6 +1668,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
     if (e.target === overlay) {
       closeModal();
       closeAdminAuth();
+      closeQRModal();
     }
   });
 });
@@ -1637,11 +1677,11 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
       closeModal();
       closeAdminAuth();
+      closeQRModal();
   }
 });
 
 // App Start
-generateInlineQR();
 fetchStateFromServer(); 
 
 </script>
