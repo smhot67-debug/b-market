@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B-MARKET — 사내 특별 판매</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..900,0..100&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --bg-card: #FFFFFF;
+    --ink: #111827;
+    --ink-2: #374151;
+    --ink-3: #6B7280;
+    --ink-4: #9CA3AF;
+    --line: #E5E7EB;
+    --line-soft: #F3F4F6;
+    --accent: #EF4444;
+    --accent-soft: #FEF2F2;
+    --ok: #22C55E;
+    --ok-soft: #F0FDF4;
+    --blue: #3B82F6;
+    --blue-soft: #EFF6FF;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+  html, body { background: var(--bg); color: var(--ink); font-family: 'Pretendard', -apple-system, sans-serif; font-feature-settings: "ss01", "ss02"; }
+  body { min-height: 100vh; font-size: 15px; line-height: 1.5; letter-spacing: -0.01em; }
+
+  .serif { font-family: 'Fraunces', serif; font-optical-sizing: auto; font-variation-settings: "SOFT" 30; letter-spacing: -0.02em; }
+  .mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: "tnum"; letter-spacing: -0.02em; }
+
+  ::selection { background: var(--ink); color: var(--bg); }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+  input, select, textarea { font-family: inherit; border: none; outline: none; background: transparent; color: inherit; }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"] { -moz-appearance: textfield; }
+  a { color: inherit; text-decoration: none; }
+
+  /* ===== TOP BAR ===== */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar-inner {
+    max-width: 1400px; margin: 0 auto;
+    padding: 18px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand { display: flex; align-items: baseline; gap: 12px; }
+  .brand-mark {
+    font-weight: 800;
+    font-size: 24px; letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .brand-tag {
+    font-size: 11px; color: var(--ink-3);
+    text-transform: uppercase; letter-spacing: 0.12em;
+    padding-left: 12px; border-left: 1px solid var(--line);
+  }
+  .tabs { display: flex; gap: 4px; background: var(--line-soft); border: 1px solid var(--line); border-radius: 999px; padding: 4px; }
+  .tab {
+    padding: 8px 18px; border-radius: 999px;
+    font-size: 13px; font-weight: 600; color: var(--ink-3);
+    transition: all 0.2s ease;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab.active { background: var(--ink); color: var(--bg); }
+  
+  .sync-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 999px;
+    font-size: 11px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+    background: var(--ok-soft); color: var(--ok);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    transition: all 0.3s;
+  }
+  .sync-badge.syncing { background: var(--line-soft); color: var(--ink-4); border-color: var(--line); }
+  .sync-badge.error { background: var(--accent-soft); color: var(--accent); border-color: rgba(239, 68, 68, 0.2); cursor: help;}
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .sync-badge:not(.syncing):not(.error) .sync-dot { animation: pulse 2s infinite; }
+
+  /* ===== STORE — HERO ===== */
+  .container { max-width: 1400px; margin: 0 auto; padding: 0 32px; }
+  .view { display: none; }
+  .view.active { display: block; animation: fadeUp 0.5s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .hero {
+    padding: 64px 0 48px;
+    display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: end;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 48px;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em;
+    color: var(--ink-3); margin-bottom: 20px; font-weight: 600;
+  }
+  .hero-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .hero h1 {
+    font-weight: 300;
+    font-size: clamp(32px, 5vw, 42px); line-height: 1.2;
+    letter-spacing: -0.04em; color: var(--ink);
+  }
+  .hero h1 em { 
+    font-style: normal; font-weight: 800; color: var(--ink); 
+    font-size: clamp(40px, 7vw, 72px);
+    display: block; white-space: nowrap; margin-top: 4px;
+  }
+  .hero-sub { color: var(--ink-3); font-size: 15px; max-width: 500px; margin-top: 24px; line-height: 1.55; }
+  
+  .hero-right { display: flex; gap: 32px; align-items: flex-end; }
+  .hero-qr { background: white; padding: 12px; border: 1px solid var(--line); border-radius: 8px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+  .hero-qr img { width: 80px; height: 80px; display: block; margin: 0 auto; }
+  .hero-qr div { font-size: 11px; color: var(--ink-2); margin-top: 8px; font-weight: 700; letter-spacing: -0.02em; }
+  
+  .hero-stats { display: flex; flex-direction: column; gap: 4px; text-align: right; }
+  .hero-stats .big { font-family: 'Fraunces', serif; font-size: 56px; line-height: 1; color: var(--ink); font-weight: 300; letter-spacing: -0.03em; }
+  .hero-stats .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-3); font-weight: 600; }
+
+  /* ===== FILTERS ===== */
+  .filter-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 28px; flex-wrap: wrap; gap: 16px;
+  }
+  .filter-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip {
+    padding: 8px 16px;
+    font-size: 13px; font-weight: 600;
+    border: 1px solid var(--line); border-radius: 999px;
+    background: var(--bg-card); color: var(--ink-3);
+    transition: all 0.2s ease;
+  }
+  .chip:hover { border-color: var(--ink-3); color: var(--ink); }
+  .chip.active { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .chip .count { opacity: 0.5; margin-left: 4px; font-size: 11px; }
+  .sort-select {
+    padding: 8px 16px; font-size: 13px; font-weight: 600;
+    border: 1px solid var(--line); border-radius: 999px;
+    background: var(--bg-card); color: var(--ink);
+    cursor: pointer;
+  }
+
+  /* ===== PRODUCT GRID ===== */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 32px 24px;
+    padding-bottom: 80px;
+  }
+  .card { position: relative; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; transition: all 0.3s; display: flex; flex-direction: column;}
+  .card:hover { border-color: var(--ink-4); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.08); transform: translateY(-2px); }
+  .card.sold { opacity: 0.6; grayscale: 50%; border-color: var(--line-soft); }
+  .card.sold:hover { transform: none; box-shadow: none; border-color: var(--line-soft); }
+  .card-image-wrap {
+    position: relative; aspect-ratio: 1/1; overflow: hidden;
+    background: var(--line-soft);
+    border-bottom: 1px solid var(--line);
+  }
+  .card-image {
+    position: absolute; inset: 0;
+    background-size: cover; background-position: center;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card:not(.sold):hover .card-image { transform: scale(1.04); }
+  .card-image-empty {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 64px;
+    color: var(--ink-4); opacity: 0.2;
+  }
+  .card-tag {
+    position: absolute; top: 12px; left: 12px;
+    display: flex; flex-direction: column; gap: 4px; align-items: flex-start;
+  }
+  .tag {
+    padding: 4px 8px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid var(--line);
+    border-radius: 4px; color: var(--ink-2);
+  }
+  .sold-mark {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(2px);
+  }
+  .sold-mark span {
+    font-weight: 800;
+    font-size: 24px; color: var(--ink); letter-spacing: 0.1em;
+    border: 2px solid var(--ink); background: white;
+    padding: 8px 24px;
+  }
+
+  .card-body { padding: 20px; display: flex; flex-direction: column; flex: 1;}
+  .card-meta {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--ink-3); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .card-meta .exp { color: var(--accent); }
+  .card-name {
+    font-weight: 600;
+    font-size: 16px; line-height: 1.35; letter-spacing: -0.01em;
+    color: var(--ink); margin-bottom: 12px;
+    min-height: 42px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .card-price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .card-price {
+    font-weight: 700; font-size: 22px;
+    color: var(--ink); letter-spacing: -0.01em;
+  }
+  .card-original {
+    font-size: 12px; color: var(--ink-4); text-decoration: line-through;
+  }
+  .card-discount {
+    font-size: 16px;
+    color: var(--accent); font-weight: 800;
+  }
+  .card-reason {
+    font-size: 11px; color: var(--ink-3); margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--line-soft);
+    line-height: 1.4;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  
+  .card-actions { margin-top: auto; padding-top: 16px; }
+  .my-order-bar {
+    background: var(--blue-soft); border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 4px; padding: 8px 12px; margin-bottom: 12px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .my-order-text { font-size: 12px; font-weight: 700; color: var(--blue); }
+  .my-order-cancel { font-size: 11px; font-weight: 600; color: var(--ink-4); text-decoration: underline; cursor: pointer; transition: color 0.2s;}
+  .my-order-cancel:hover { color: var(--accent); }
+
+  .btn-buy {
+    width: 100%; padding: 10px; border-radius: 4px;
+    background: var(--ink); color: white;
+    font-size: 13px; font-weight: 600; transition: all 0.2s;
+  }
+  .btn-buy:hover:not(:disabled) { background: #000; }
+  .btn-buy:disabled { background: var(--line); color: var(--ink-4); cursor: not-allowed; }
+  .btn-outline { border: 1px solid var(--line); background: var(--bg-card); color: var(--ink); }
+  .btn-outline:hover { border-color: var(--ink); }
+
+  /* ===== EMPTY STATE ===== */
+  .empty {
+    padding: 100px 24px; text-align: center;
+    color: var(--ink-3);
+  }
+  .empty-mark {
+    font-weight: 800; font-size: 48px;
+    color: var(--ink-4); margin-bottom: 16px;
+  }
+
+  /* ===== MODALS ===== */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(17, 24, 39, 0.4);
+    backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .modal-overlay.show { display: flex; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: var(--bg-card);
+    width: 100%; max-width: 440px;
+    border-radius: 8px;
+    max-height: 90vh; overflow-y: auto;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid var(--line); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .modal-head {
+    padding: 20px 24px; border-bottom: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--bg); position: sticky; top: 0; z-index: 10;
+  }
+  .modal-title { font-size: 16px; font-weight: 700; }
+  .modal-close {
+    width: 28px; height: 28px; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-4); font-size: 20px;
+    transition: all 0.2s;
+  }
+  .modal-close:hover { background: var(--line-soft); color: var(--ink); }
+  .modal-body { padding: 24px; }
+  
+  .modal-product {
+    display: flex; gap: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--line-soft); margin-bottom: 20px;
+  }
+  .modal-product-img {
+    width: 80px; height: 80px; border-radius: 4px;
+    background-size: cover; background-position: center; border: 1px solid var(--line);
+    background-color: var(--line-soft); flex-shrink: 0;
+  }
+  .modal-product-info { flex: 1; min-width: 0; }
+  .modal-product-tags { display: flex; gap: 6px; margin-bottom: 6px; }
+  .modal-product-name {
+    font-size: 15px; font-weight: 600; line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  .modal-product-price {
+    font-size: 20px; font-weight: 700; color: var(--ink);
+  }
+
+  .field { margin-bottom: 16px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .field-label {
+    font-size: 11px; font-weight: 700;
+    color: var(--ink-3); margin-bottom: 6px; display: block;
+  }
+  .field-input, .field-select {
+    width: 100%; padding: 10px 12px;
+    border: 1px solid var(--line); border-radius: 4px;
+    background: var(--bg); font-size: 13px; color: var(--ink);
+    transition: all 0.2s;
+  }
+  .field-input:focus, .field-select:focus {
+    border-color: var(--ink); outline: none; box-shadow: 0 0 0 1px var(--ink);
+  }
+  .field-input::placeholder { color: var(--ink-4); }
+
+  .qty-control {
+    display: flex; align-items: center;
+    border: 1px solid var(--line); border-radius: 4px;
+    background: var(--bg); overflow: hidden;
+  }
+  .qty-btn {
+    width: 40px; height: 40px;
+    font-size: 18px; color: var(--ink-2); font-weight: bold;
+    transition: background 0.15s; background: var(--line-soft);
+  }
+  .qty-btn:hover:not(:disabled) { background: var(--line); color: var(--ink); }
+  .qty-btn:disabled { color: var(--ink-4); cursor: not-allowed; }
+  .qty-input {
+    flex: 1; text-align: center;
+    font-size: 16px; font-weight: 600;
+    padding: 0; height: 40px; border-left: 1px solid var(--line); border-right: 1px solid var(--line);
+  }
+  .qty-hint { font-size: 11px; color: var(--ink-3); text-align: right; margin-top: 6px; }
+
+  .agree-list { display: flex; flex-direction: column; gap: 12px; padding: 16px; background: var(--line-soft); border-radius: 4px; }
+  .agree-item { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+  .check {
+    width: 16px; height: 16px; border: 1.5px solid var(--ink-4); border-radius: 3px;
+    flex-shrink: 0; margin-top: 1px;
+    display: flex; align-items: center; justify-content: center; background: white;
+    transition: all 0.15s;
+  }
+  .agree-item input { display: none; }
+  .agree-item input:checked + .check { background: var(--ink); border-color: var(--ink); }
+  .agree-item input:checked + .check::after {
+    content: ''; width: 4px; height: 7px;
+    border: solid white; border-width: 0 1.5px 1.5px 0;
+    transform: rotate(45deg) translate(-1px, -1px);
+  }
+  .agree-text { font-size: 12px; color: var(--ink-2); line-height: 1.4; }
+  .agree-text b { color: var(--ink); font-weight: 700; }
+
+  .modal-foot {
+    padding: 16px 24px; border-top: 1px solid var(--line);
+    display: flex; gap: 8px; background: var(--bg);
+  }
+  .btn {
+    padding: 10px 20px; border-radius: 4px;
+    font-size: 13px; font-weight: 600;
+    transition: all 0.2s;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-primary { background: var(--ink); color: white; flex: 1; }
+  .btn-primary:hover { background: #000; }
+  .btn-primary:disabled { background: var(--line); color: var(--ink-4); cursor: not-allowed; }
+  .btn-ghost { color: var(--ink-3); padding: 10px 16px; border: 1px solid transparent; }
+  .btn-ghost:hover { background: var(--line-soft); color: var(--ink); }
+
+  /* ===== ADMIN ===== */
+  .admin-head {
+    padding: 48px 0 32px;
+    display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end;
+    border-bottom: 1px solid var(--line);
+  }
+  .admin-head h1 {
+    font-weight: 800; font-size: clamp(28px, 5vw, 36px); line-height: 1.2; letter-spacing: -0.02em;
+  }
+  .admin-head .sub { color: var(--ink-3); margin-top: 8px; max-width: 460px; }
+  .admin-actions { display: flex; gap: 8px; }
+
+  .metrics {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px; margin: 32px 0;
+  }
+  .metric {
+    background: var(--bg-card); border: 1px solid var(--line); border-radius: 6px;
+    padding: 20px 24px;
+  }
+  .metric-label {
+    font-size: 11px; font-weight: 700; color: var(--ink-3); margin-bottom: 12px;
+  }
+  .metric-value {
+    font-size: 32px; font-weight: 700; line-height: 1; letter-spacing: -0.02em;
+  }
+  .metric-value small { font-size: 14px; color: var(--ink-4); margin-left: 4px; font-weight: 500;}
+  .metric-meta { font-size: 12px; color: var(--ink-3); margin-top: 8px; }
+  .metric-meta b { color: var(--accent); }
+
+  .admin-tabs { display: flex; gap: 32px; margin: 40px 0 24px; border-bottom: 1px solid var(--line); }
+  .admin-tab {
+    padding: 0 0 14px; font-size: 14px; font-weight: 600;
+    color: var(--ink-4); position: relative;
+    transition: color 0.2s;
+  }
+  .admin-tab:hover { color: var(--ink); }
+  .admin-tab.active { color: var(--ink); }
+  .admin-tab.active::after {
+    content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+    height: 2px; background: var(--ink);
+  }
+  .admin-tab .badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 20px; height: 20px; padding: 0 6px; margin-left: 6px;
+    background: var(--accent); color: white;
+    font-size: 11px; font-weight: 700; border-radius: 999px;
+  }
+
+  .admin-pane { display: none; padding-bottom: 80px; }
+  .admin-pane.active { display: block; }
+
+  /* === DISPATCH (orders aggregated by product) === */
+  .dispatch-list { display: flex; flex-direction: column; gap: 16px; }
+  .dispatch-card {
+    background: var(--bg-card); border: 1px solid var(--line);
+    border-radius: 6px; overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .dispatch-card:hover { border-color: var(--ink-4); }
+  .dispatch-summary {
+    padding: 16px 20px; display: grid;
+    grid-template-columns: 60px 1fr auto auto auto;
+    gap: 20px; align-items: center;
+    cursor: pointer;
+  }
+  .dispatch-img {
+    width: 60px; height: 60px; border-radius: 4px; border: 1px solid var(--line);
+    background-size: cover; background-position: center;
+    background-color: var(--line-soft);
+  }
+  .dispatch-info h3 { font-size: 16px; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
+  .dispatch-info .meta { font-size: 12px; color: var(--ink-3); display: flex; gap: 12px; font-weight: 500;}
+  .dispatch-info .meta span:not(:last-child)::after { content: '|'; margin-left: 12px; color: var(--line); }
+  .dispatch-stat { text-align: center; min-width: 70px; }
+  .dispatch-stat .v { font-size: 24px; font-weight: 700; line-height: 1; color: var(--ink); }
+  .dispatch-stat .v.accent { color: var(--blue); }
+  .dispatch-stat .l { font-size: 10px; font-weight: 700; color: var(--ink-4); margin-top: 6px; }
+  .dispatch-toggle {
+    width: 32px; height: 32px; border-radius: 4px; border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-4); transition: all 0.2s; background: white; font-weight: bold;
+  }
+  .dispatch-card.open .dispatch-toggle { transform: rotate(180deg); background: var(--line-soft); color: var(--ink); border-color: transparent;}
+  .dispatch-detail { display: none; border-top: 1px solid var(--line); }
+  .dispatch-card.open .dispatch-detail { display: block; }
+  .dispatch-detail-head {
+    display: grid; grid-template-columns: 40px 1fr 1fr 80px 100px 110px;
+    gap: 12px; padding: 12px 20px; background: var(--line-soft);
+    font-size: 11px; font-weight: 700; color: var(--ink-3);
+    border-bottom: 1px solid var(--line);
+  }
+  .dispatch-row {
+    display: grid; grid-template-columns: 40px 1fr 1fr 80px 100px 110px;
+    gap: 12px; padding: 12px 20px; align-items: center;
+    font-size: 13px; border-bottom: 1px solid var(--line-soft);
+  }
+  .dispatch-row:last-child { border-bottom: none; }
+  .dispatch-row.done { background: var(--ok-soft); }
+  .dispatch-row.done .name, .dispatch-row.done .dept { color: var(--ink-4); text-decoration: line-through; }
+  .dispatch-row .num { color: var(--ink-4); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+  .dispatch-row .name { font-weight: 600; }
+  .dispatch-row .dept { color: var(--ink-3); }
+  .dispatch-row .qty { font-size: 15px; text-align: center; font-weight: 700; }
+  .dispatch-row .price { text-align: right; font-weight: 600; color: var(--ink-2); }
+  .dispatch-row .action { text-align: right; }
+  .mark-done {
+    padding: 6px 12px; font-size: 11px; font-weight: 700;
+    border: 1px solid var(--line); border-radius: 4px;
+    color: var(--ink-3); background: white;
+    transition: all 0.15s;
+  }
+  .mark-done:hover { border-color: var(--blue); color: var(--blue); }
+  .mark-done.done { background: var(--blue); color: white; border-color: var(--blue); }
+  .dispatch-empty { padding: 80px 24px; text-align: center; color: var(--ink-4); font-weight: 600;}
+
+  /* === INVENTORY === */
+  .inv-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .inv-search {
+    flex: 1; max-width: 300px;
+    padding: 8px 12px; border: 1px solid var(--line); border-radius: 4px;
+    background: var(--bg-card); font-size: 13px;
+  }
+  .inv-search:focus { border-color: var(--ink); outline: none; }
+  .inv-table {
+    background: var(--bg-card); border: 1px solid var(--line);
+    border-radius: 6px; overflow: hidden;
+  }
+  .inv-row-head {
+    display: grid; grid-template-columns: 50px 2fr 1fr 90px 80px 90px 90px 90px;
+    gap: 12px; padding: 12px 20px; background: var(--line-soft);
+    font-size: 11px; font-weight: 700; color: var(--ink-3);
+    border-bottom: 1px solid var(--line);
+  }
+  .inv-row {
+    display: grid; grid-template-columns: 50px 2fr 1fr 90px 80px 90px 90px 90px;
+    gap: 12px; padding: 12px 20px; align-items: center;
+    font-size: 13px; border-bottom: 1px solid var(--line-soft);
+    transition: background 0.15s;
+  }
+  .inv-row:hover { background: var(--bg); }
+  .inv-row:last-child { border-bottom: none; }
+  .inv-row.sold { opacity: 0.6; background: #fafafa;}
+  .inv-img-cell {
+    width: 40px; height: 40px; border-radius: 4px; border: 1px solid var(--line);
+    background-size: cover; background-position: center; background-color: var(--line-soft);
+  }
+  .inv-name { font-weight: 600; line-height: 1.3; }
+  .inv-name small { display: block; font-weight: 400; color: var(--ink-4); font-size: 11px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+  .inv-cat { font-size: 12px; color: var(--ink-3); font-weight: 500;}
+  .inv-exp { font-size: 11px; color: var(--accent); font-weight: 600;}
+  .inv-stock { font-size: 16px; font-weight: 700; }
+  .inv-stock.zero { color: var(--ink-4); }
+  .inv-price { font-size: 12px; font-weight: 600;}
+  .inv-actions { display: flex; gap: 4px; justify-content: flex-end; }
+  .icon-btn {
+    width: 26px; height: 26px; border-radius: 4px; border: 1px solid var(--line); background: white;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--ink-3); transition: all 0.15s; font-size: 12px; font-weight: bold;
+  }
+  .icon-btn:hover { border-color: var(--ink); color: var(--ink); }
+  .icon-btn.danger:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* === REGISTER PANE === */
+  .register-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+  .register-card {
+    background: var(--bg-card); border: 1px solid var(--line);
+    border-radius: 6px; padding: 24px;
+  }
+  .register-head { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--line-soft); }
+  .register-head h3 { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+  .register-head p { font-size: 12px; color: var(--ink-4); margin-top: 4px; font-weight: 500;}
+  .upload-zone {
+    border: 1.5px dashed var(--ink-4); border-radius: 4px;
+    padding: 32px; text-align: center;
+    background: #FAFAFA;
+    cursor: pointer; transition: all 0.2s;
+    position: relative;
+  }
+  .upload-zone:hover { border-color: var(--ink); background: white; }
+  .upload-zone.has-image { padding: 0; aspect-ratio: 1; border-style: solid; border-color: var(--line);}
+  .upload-zone img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
+  .upload-zone input[type="file"] { display: none; }
+  .upload-icon { font-size: 32px; color: var(--ink-4); line-height: 1; font-weight: 300;}
+  .upload-text { font-size: 12px; color: var(--ink-3); font-weight: 600; margin-top: 10px; }
+  .upload-clear {
+    position: absolute; top: 8px; right: 8px;
+    width: 28px; height: 28px; border-radius: 4px; border: 1px solid var(--line);
+    background: white; color: var(--ink);
+    display: none; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-size: 16px; font-weight: bold;
+  }
+  .upload-zone.has-image .upload-clear { display: flex; }
+  .upload-clear:hover { border-color: var(--ink); }
+  .price-discount-display {
+    margin-top: 8px; padding: 10px 12px;
+    background: var(--accent-soft); border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.2);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; color: var(--ink-2); font-weight: 600;
+  }
+  .price-discount-display b { font-size: 18px; color: var(--accent); font-weight: 800; }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--ink); color: var(--bg);
+    padding: 12px 20px; border-radius: 4px;
+    font-size: 13px; font-weight: 600;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+    z-index: 200; opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  .toast .check {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--ok); border: none;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .toast .check::after {
+    content: ''; width: 4px; height: 7px;
+    border: solid white; border-width: 0 1.5px 1.5px 0;
+    transform: rotate(45deg) translate(-0.5px, -0.5px);
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .topbar-inner { padding: 14px 20px; }
+    .container { padding: 0 20px; }
+    .brand-tag { display: none; }
+    .hero { grid-template-columns: 1fr; padding: 40px 0 32px; gap: 20px;}
+    .hero-right { justify-content: flex-start; }
+    .hero-qr { display: none !important; }
+    .hero-stats { text-align: left; flex-direction: row; align-items: baseline; gap: 12px; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px 16px; }
+    .card-name { font-size: 14px; min-height: 38px; }
+    .card-price { font-size: 18px; }
+    .filter-bar { gap: 12px; }
+    .modal { max-width: 100%; max-height: 95vh; margin: 16px; border-radius: 8px;}
+    .modal-body, .modal-head, .modal-foot { padding-left: 20px; padding-right: 20px; }
+    .field-row { grid-template-columns: 1fr; }
+    .dispatch-summary { grid-template-columns: 50px 1fr; row-gap: 14px; }
+    .dispatch-img { width: 50px; height: 50px; grid-row: 1 / span 2; }
+    .dispatch-stat { display: flex; gap: 8px; align-items: baseline; min-width: 0; text-align: left; }
+    .dispatch-stat .v { font-size: 20px; }
+    .dispatch-stat .l { margin-top: 0; }
+    .dispatch-toggle { grid-column: 2; justify-self: end; }
+    .dispatch-detail-head { display: none; }
+    .dispatch-row { grid-template-columns: 1fr auto; gap: 4px 12px; padding: 12px 16px;}
+    .dispatch-row .num, .dispatch-row .price { display: none; }
+    .dispatch-row .qty { font-size: 14px; text-align: right; }
+    .dispatch-row .action { grid-column: 1 / -1; margin-top: 8px;}
+    .inv-row-head { display: none; }
+    .inv-row { grid-template-columns: 48px 1fr auto; gap: 12px; padding: 12px 16px; }
+    .inv-row > :nth-child(3), .inv-row > :nth-child(4), .inv-row > :nth-child(6), .inv-row > :nth-child(7) { display: none; }
+    .register-grid { grid-template-columns: 1fr; gap: 20px; }
+    .admin-head { grid-template-columns: 1fr; gap: 16px;}
+    .admin-tabs { gap: 20px; overflow-x: auto; white-space: nowrap; padding-bottom: 4px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== TOP BAR ===== -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand" onclick="switchViewDirect('store')" style="cursor:pointer">
+      <span class="brand-mark">B-MARKET</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <!-- 동기화 상태 뱃지 -->
+      <div class="sync-badge" id="sync-badge" title="상태 메시지">
+        <div class="sync-dot"></div>
+        <span id="sync-text">LIVE SYNC</span>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-view="store" onclick="switchViewDirect('store')">스토어</button>
+        <button class="tab" data-view="admin" onclick="tryAdmin()">관리자</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== ADMIN AUTH MODAL (7242) ===== -->
+<div class="modal-overlay" id="admin-auth-modal">
+  <div class="modal" style="max-width: 320px; margin: auto;">
+    <div class="modal-head">
+      <h2 class="modal-title">관리자 인증</h2>
+      <button class="modal-close" onclick="closeAdminAuth()">×</button>
+    </div>
+    <div class="modal-body" style="padding: 24px;">
+      <div class="field" style="margin-bottom: 0;">
+        <label class="field-label">관리자 비밀번호</label>
+        <input type="password" class="field-input" id="admin-pwd" placeholder="비밀번호를 입력하세요" onkeypress="if(event.key==='Enter') checkAdminPwd()">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeAdminAuth()">취소</button>
+      <button class="btn btn-primary" onclick="checkAdminPwd()">접속</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== STORE VIEW ===== -->
+<section id="view-store" class="view active">
+  <div class="container">
+    <div class="hero">
+      <div>
+        <div class="hero-eyebrow"><span class="dot"></span><span>Live · 이번 주 특가</span></div>
+        <h1>버리기엔 아까운 좋은 것들.<br><em style="white-space: nowrap;">사내 임직원 한정 특가</em></h1>
+        <p class="hero-sub">기능과 품질에는 전혀 이상이 없는 B급 제품 및 전시 상품을 사내 임직원 전용 특별 할인가로 제공합니다. 재판매를 엄격히 금지합니다.</p>
+      </div>
+      <div class="hero-right">
+        <!-- 항상 노출되는 인라인 QR 코드 (모바일 접속 시엔 숨김 처리됨) -->
+        <div class="hero-qr">
+          <img id="inline-qr-image" src="" alt="Store QR">
+          <div>모바일 바로 접속</div>
+        </div>
+        <div class="hero-stats">
+          <div class="big" id="hero-count">—</div>
+          <div class="label">Available Items</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-chips" id="filter-chips"></div>
+      <select class="sort-select" id="sort-select" onchange="renderStoreUI()">
+        <option value="default">기본순</option>
+        <option value="discount">할인율 높은순</option>
+        <option value="price-low">낮은 가격순</option>
+        <option value="exp">유통기한 임박순</option>
+      </select>
+    </div>
+
+    <div class="grid" id="product-grid"></div>
+  </div>
+</section>
+
+<!-- ===== ADMIN VIEW ===== -->
+<section id="view-admin" class="view">
+  <div class="container">
+    <div class="admin-head">
+      <div>
+        <h1>관리자 대시보드</h1>
+        <p class="sub">접수된 구매 희망을 확인하고, 제품별로 취합하여 출고를 처리합니다.</p>
+      </div>
+      <div class="admin-actions">
+        <button class="btn btn-outline" onclick="exportCSV()">↓ CSV 내보내기</button>
+        <button class="btn btn-primary" onclick="document.querySelector('[data-pane=register]').click()">+ 신규 등록</button>
+      </div>
+    </div>
+
+    <div class="metrics" id="metrics"></div>
+
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-pane="dispatch" onclick="switchPane('dispatch')">출고 대기<span class="badge" id="badge-pending" style="display:none">0</span></button>
+      <button class="admin-tab" data-pane="inventory" onclick="switchPane('inventory')">재고 관리</button>
+      <button class="admin-tab" data-pane="register" onclick="switchPane('register')">신규 등록</button>
+    </div>
+
+    <!-- DISPATCH PANE -->
+    <div id="pane-dispatch" class="admin-pane active">
+      <div id="dispatch-list" class="dispatch-list"></div>
+    </div>
+
+    <!-- INVENTORY PANE -->
+    <div id="pane-inventory" class="admin-pane">
+      <div class="inv-toolbar">
+        <input type="text" class="inv-search" id="inv-search" placeholder="제품명 검색..." oninput="renderInventory()">
+      </div>
+      <div class="inv-table">
+        <div class="inv-row-head">
+          <span>#</span>
+          <span>제품명</span>
+          <span>분류 / 등급</span>
+          <span>유통기한</span>
+          <span>재고</span>
+          <span>정가</span>
+          <span>할인가</span>
+          <span style="text-align: right;">관리</span>
+        </div>
+        <div id="inv-tbody"></div>
+      </div>
+    </div>
+
+    <!-- REGISTER PANE -->
+    <div id="pane-register" class="admin-pane">
+      <div class="register-grid">
+        <div class="register-card">
+          <div class="register-head">
+            <h3>신규 제품 등록</h3>
+            <p>현장에서 발생한 B급 또는 낱개 제품을 등록합니다.</p>
+          </div>
+
+          <form id="register-form" onsubmit="handleRegister(event)">
+            <div class="field">
+              <label class="field-label">제품명 *</label>
+              <input type="text" class="field-input" id="reg-name" required placeholder="예: 참나무 훈연 바베큐 햄 500g">
+            </div>
+
+            <div class="field field-row">
+              <div>
+                <label class="field-label">분류</label>
+                <select class="field-select" id="reg-category">
+                  <option>햄</option><option>소시지</option><option>프랑크</option><option>베이컨</option>
+                  <option>가전</option><option>가구</option><option>기타</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label">등급</label>
+                <select class="field-select" id="reg-grade">
+                  <option value="S">S — 단순변심/포장훼손</option>
+                  <option value="A">A — 미세스크래치</option>
+                  <option value="B">B — 외관흠집/임박</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field field-row">
+              <div>
+                <label class="field-label">유통기한 * (또는 제조일자)</label>
+                <input type="date" class="field-input" id="reg-exp" required style="color:var(--accent); font-weight:600;">
+              </div>
+              <div>
+                <label class="field-label">입고 수량(재고) *</label>
+                <input type="number" class="field-input" id="reg-stock" required min="1" value="1" style="text-align:right; font-size:16px; font-weight:700;">
+              </div>
+            </div>
+
+            <div class="field field-row" style="margin-bottom: 0;">
+              <div>
+                <label class="field-label">정상가 (원) *</label>
+                <input type="number" class="field-input" id="reg-price-original" required placeholder="15000" style="text-align:right;" oninput="updateDiscount()">
+              </div>
+              <div>
+                <label class="field-label">판매가 (원) *</label>
+                <input type="number" class="field-input" id="reg-price-discount" required placeholder="4500" style="text-align:right; color:var(--ink); font-weight:700;" oninput="updateDiscount()">
+              </div>
+            </div>
+
+            <div class="price-discount-display">
+              <span>할인율</span>
+              <b id="discount-display">0%</b>
+            </div>
+
+            <div class="field" style="margin-top:16px">
+              <label class="field-label">B급 상세 사유 *</label>
+              <input type="text" class="field-input" id="reg-desc" required placeholder="예: 외부 종이 패키지 찌그러짐 (진공포장 정상)">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:8px">제품 등록하여 판매 시작</button>
+          </form>
+        </div>
+
+        <div class="register-card">
+          <div class="register-head">
+            <h3>제품 이미지</h3>
+            <p>스토어에 노출될 대표 이미지입니다. (선택사항)</p>
+          </div>
+          <label class="upload-zone" id="upload-zone" for="reg-image-file">
+            <div id="upload-empty">
+              <div class="upload-icon"><i class="fa-solid fa-camera"></i></div>
+              <div class="upload-text">클릭하여 이미지 업로드<br><span style="opacity:0.7; font-weight:normal;">권장: 정사각형 (1:1 비율)</span></div>
+            </div>
+            <img id="upload-preview" style="display:none" alt="">
+            <button type="button" class="upload-clear" onclick="clearImage(event)"><i class="fa-solid fa-xmark"></i></button>
+            <input type="file" id="reg-image-file" accept="image/*" onchange="previewImage(event)">
+            <!-- Base64 string will be stored here -->
+            <input type="hidden" id="reg-image-b64" value="">
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PURCHASE MODAL ===== -->
+<div class="modal-overlay" id="purchase-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 class="modal-title">구매 희망 접수</h2>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-product">
+        <div class="modal-product-img" id="m-img"></div>
+        <div class="modal-product-info">
+          <div class="modal-product-tags">
+            <span class="tag" id="m-grade"></span>
+            <span class="tag" id="m-exp" style="color:var(--accent); border-color:rgba(239,68,68,0.3);"></span>
+          </div>
+          <div class="modal-product-name" id="m-name"></div>
+          <div class="modal-product-price" id="m-price"></div>
+        </div>
+      </div>
+
+      <div class="field field-row">
+        <div>
+          <label class="field-label">소속 (부서/반) *</label>
+          <input type="text" class="field-input" id="b-dept" placeholder="예: 경영지원팀">
+        </div>
+        <div>
+          <label class="field-label">성명 *</label>
+          <input type="text" class="field-input" id="b-name" placeholder="예: 홍길동">
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">신청 수량</label>
+        <div class="qty-control">
+          <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
+          <input type="number" class="qty-input" id="b-qty" value="1" min="1">
+          <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+        </div>
+        <div class="qty-hint">잔여 재고 <span id="b-max" style="font-weight:700; color:var(--ink);">0</span>개 가능</div>
+      </div>
+
+      <div class="agree-list">
+        <label class="agree-item">
+          <input type="checkbox" id="agree-1">
+          <span class="check"></span>
+          <span class="agree-text"><b>재판매 엄격 금지</b> · 당근마켓 등 중고거래 플랫폼 재판매 적발 시 향후 구매 권한이 영구 박탈됩니다.</span>
+        </label>
+        <label class="agree-item">
+          <input type="checkbox" id="agree-2">
+          <span class="check"></span>
+          <span class="agree-text"><b>As-Is 조건 동의</b> · 고지된 B급 사유로 인한 교환/환불은 절대 불가하며, 신청 대금은 익월 급여에서 공제됩니다.</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="submitPurchase()">서약 및 구매 신청</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast"><span class="check"></span><span id="toast-msg"></span></div>
+
+<script>
+// =====================================================================
+//                          GOOGLE SHEETS API
+// =====================================================================
+const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwGZDj7AJtKF1hIHEvvavT6oVDJhJh-hgjKE59j5Gss6GGEAk3RRahs8lVQ6AOVsetKQg/exec";
+
+// =====================================================================
+//                          STATE & STORAGE
+// =====================================================================
+const LOCAL_STORAGE_KEY = 'bmarket_my_orders_v1';
+
+// 초기 더미 데이터
+const defaultProducts = [
+    { id: 1001, name: "참나무 훈연 바베큐 햄 500g", category: "햄", grade: "A", originalPrice: 15000, discountPrice: 4500, stock: 12, exp: "2026-05-20", desc: "외부 종이 패키지 찌그러짐 (진공포장 정상)", image: "", created: "2026-04-30" },
+    { id: 1002, name: "육즙가득 모둠 소시지 1kg", category: "소시지", grade: "B", originalPrice: 22000, discountPrice: 6600, stock: 30, exp: "2026-05-05", desc: "유통기한 임박 상품 (섭취에는 지장 없음)", image: "", created: "2026-04-30" },
+    { id: 1003, name: "매콤 치즈 프랑크 300g", category: "프랑크", grade: "S", originalPrice: 8000, discountPrice: 3200, stock: 8, exp: "2026-05-25", desc: "과생산으로 인한 B급 전환 (정상품과 동일)", image: "", created: "2026-04-29" }
+];
+
+let state = {
+  products: [],
+  orders: [],
+  filter: 'all'
+};
+
+let isAdminAuthenticated = false;
+let currentProductId = null;
+let isSyncing = false;
+let isLocalMode = false;
+
+let myOrderIds = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+
+function saveMyOrder(orderId) {
+  myOrderIds.push(orderId);
+  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(myOrderIds));
+}
+
+function removeMyOrder(orderId) {
+  myOrderIds = myOrderIds.filter(id => id !== orderId);
+  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(myOrderIds));
+}
+
+// =====================================================================
+//                          SERVER SYNC LOGIC
+// =====================================================================
+function setSyncStatus(status) {
+  const badge = document.getElementById('sync-badge');
+  const text = document.getElementById('sync-text');
+  badge.className = 'sync-badge'; 
+  if (status === 'syncing') {
+    badge.classList.add('syncing');
+    text.textContent = '동기화 중...';
+    isSyncing = true;
+  } else if (status === 'error') {
+    badge.classList.add('error');
+    text.textContent = '통신 오류';
+    badge.title = "서버 접속 권한이 필요하거나 응답이 없습니다. 로컬 모드로 작동합니다.";
+    isSyncing = false;
+  } else {
+    text.textContent = 'LIVE SYNC';
+    badge.title = "서버와 정상적으로 동기화되고 있습니다.";
+    isSyncing = false;
+  }
+}
+
+async function fetchStateFromServer() {
+  try {
+    setSyncStatus('syncing');
+    if (!GOOGLE_SHEET_API_URL || !GOOGLE_SHEET_API_URL.startsWith("http")) throw new Error("Invalid API URL");
+
+    const response = await fetch(GOOGLE_SHEET_API_URL + "?action=read", { method: 'GET' });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    
+    const data = await response.json();
+    if (data) {
+      state.products = data.products || [];
+      state.orders = data.orders || [];
+    }
+    setSyncStatus('success');
+    isLocalMode = false;
+  } catch (error) {
+    console.warn("[B-MARKET] 구글 시트 통신 실패. 로컬 모드로 전환됩니다.", error);
+    setSyncStatus('error');
+    toast("사내망 보안 정책으로 인해 임시 로컬 모드로 작동합니다.");
+    state.products = JSON.parse(localStorage.getItem('bmarket_local_products')) || defaultProducts;
+    state.orders = JSON.parse(localStorage.getItem('bmarket_local_orders')) || [];
+    isLocalMode = true;
+  } finally {
+    renderStoreUI();
+    if (isAdminAuthenticated) renderAdminUI();
+  }
+}
+
+async function saveStateToServer() {
+  if (isLocalMode) {
+    localStorage.setItem('bmarket_local_products', JSON.stringify(state.products));
+    localStorage.setItem('bmarket_local_orders', JSON.stringify(state.orders));
+    return;
+  }
+
+  try {
+    setSyncStatus('syncing');
+    await fetch(GOOGLE_SHEET_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify({ action: "write", products: state.products, orders: state.orders })
+    });
+    setSyncStatus('success');
+  } catch (error) {
+    console.warn("Save Error:", error);
+    setSyncStatus('error');
+    toast("서버 저장 실패: 네트워크 연결을 확인해주세요.");
+  }
+}
+
+// =====================================================================
+//                          UTILITIES
+// =====================================================================
+const won = (n) => n.toLocaleString('ko-KR') + '원';
+const discountRate = (orig, disc) => Math.round(((orig - disc) / orig) * 100);
+const daysLeft = (d) => Math.ceil((new Date(d) - new Date()) / 86400000);
+const escapeHtml = (s) => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+// =====================================================================
+//                          VIEWS / TABS
+// =====================================================================
+function switchViewDirect(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.toggle('active', el.id === 'view-' + v));
+  document.querySelectorAll('.tab').forEach(el => el.classList.toggle('active', el.dataset.view === v));
+  if (v === 'store') renderStoreUI();
+  else renderAdminUI();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function tryAdmin() {
+  if (isAdminAuthenticated) {
+    switchViewDirect('admin');
+  } else {
+    document.getElementById('admin-auth-modal').classList.add('show');
+    document.getElementById('admin-pwd').value = '';
+    document.getElementById('admin-pwd').focus();
+  }
+}
+
+function checkAdminPwd() {
+  if (document.getElementById('admin-pwd').value === '7242') {
+    closeAdminAuth();
+    isAdminAuthenticated = true;
+    switchViewDirect('admin');
+    toast('관리자 모드로 접속했습니다.');
+  } else {
+    toast('비밀번호가 일치하지 않습니다.');
+  }
+}
+
+function closeAdminAuth() {
+  document.getElementById('admin-auth-modal').classList.remove('show');
+}
+
+function switchPane(p) {
+  document.querySelectorAll('.admin-pane').forEach(el => el.classList.toggle('active', el.id === 'pane-' + p));
+  document.querySelectorAll('.admin-tab').forEach(el => el.classList.toggle('active', el.dataset.pane === p));
+  if (p === 'dispatch') renderDispatch();
+  if (p === 'inventory') renderInventory();
+}
+
+// =====================================================================
+//                          STORE RENDERING
+// =====================================================================
+function renderStoreUI() {
+  renderFilters();
+  renderProducts();
+  const available = state.products.filter(p => p.stock > 0).length;
+  document.getElementById('hero-count').textContent = String(available).padStart(2, '0');
+}
+
+function renderFilters() {
+  const cats = ['all', ...new Set(state.products.map(p => p.category))];
+  const counts = state.products.reduce((acc, p) => { acc[p.category] = (acc[p.category] || 0) + 1; return acc; }, {});
+  counts.all = state.products.length;
+  const chips = document.getElementById('filter-chips');
+  chips.innerHTML = cats.map(c => `
+    <button class="chip ${state.filter === c ? 'active' : ''}" onclick="setFilter('${c}')">
+      ${c === 'all' ? '전체' : escapeHtml(c)}<span class="count">${counts[c] || 0}</span>
+    </button>
+  `).join('');
+}
+
+function setFilter(c) {
+  state.filter = c;
+  renderStoreUI();
+}
+
+function renderProducts() {
+  let list = [...state.products];
+  if (state.filter !== 'all') list = list.filter(p => p.category === state.filter);
+
+  const sort = document.getElementById('sort-select').value;
+  if (sort === 'discount') list.sort((a, b) => discountRate(b.originalPrice, b.discountPrice) - discountRate(a.originalPrice, a.discountPrice));
+  else if (sort === 'price-low') list.sort((a, b) => a.discountPrice - b.discountPrice);
+  else if (sort === 'exp') list.sort((a, b) => new Date(a.exp) - new Date(b.exp));
+  else list.sort((a, b) => (b.stock > 0) - (a.stock > 0) || b.id - a.id);
+
+  const grid = document.getElementById('product-grid');
+  if (list.length === 0) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="empty-mark">∅</div><div style="font-weight:600;">등록된 제품이 없습니다</div></div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map(p => {
+    const sold = p.stock <= 0;
+    const dRate = discountRate(p.originalPrice, p.discountPrice);
+    
+    const myPendingOrders = state.orders.filter(o => o.productId === p.id && o.status === 'pending' && myOrderIds.includes(o.id));
+    const myPendingQty = myPendingOrders.reduce((sum, o) => sum + o.qty, 0);
+    const hasPurchased = myPendingQty > 0;
+    
+    const imgStyle = p.image ? `background-image:url('${p.image}')` : '';
+    
+    return `
+      <article class="card ${sold && !hasPurchased ? 'sold' : ''}">
+        <div class="card-image-wrap">
+          <div class="card-image" style="${imgStyle}"></div>
+          ${!p.image ? `<div class="card-image-empty"><i class="fa-solid fa-box-open"></i></div>` : ''}
+          <div class="card-tag">
+            <span class="tag">등급 ${p.grade}</span>
+          </div>
+          ${sold && !hasPurchased ? `<div class="sold-mark"><span>SOLD OUT</span></div>` : ''}
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span>${escapeHtml(p.category)}</span>
+            <span class="exp">EXP ${p.exp.replace(/-/g, '.')}</span>
+          </div>
+          <h3 class="card-name">${escapeHtml(p.name)}</h3>
+          <div class="card-price-row">
+            <span class="card-discount">${dRate}%</span>
+            <span class="card-price">${won(p.discountPrice)}</span>
+          </div>
+          <div class="card-original">${won(p.originalPrice)}</div>
+          <p class="card-reason" title="${escapeHtml(p.desc)}">${escapeHtml(p.desc)}</p>
+          
+          <div class="card-actions">
+            ${hasPurchased ? `
+              <div class="my-order-bar">
+                <span class="my-order-text"><i class="fa-solid fa-check mr-1"></i>내 신청 ${myPendingQty}개</span>
+                <span class="my-order-cancel" onclick="cancelMyPurchase(${p.id})">신청취소</span>
+              </div>
+            ` : ''}
+            
+            <button class="btn-buy" ${sold ? 'disabled' : ''} onclick="openPurchase(${p.id})">
+               ${sold ? '판매 종료' : (hasPurchased ? '추가 구매 신청' : '구매 신청하기')}
+            </button>
+          </div>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+// =====================================================================
+//                          PURCHASE & CANCEL
+// =====================================================================
+function openPurchase(id) {
+  if(isSyncing) { toast("서버 통신 중입니다. 잠시만 기다려주세요."); return; }
+  
+  const p = state.products.find(x => x.id === id);
+  if (!p || p.stock <= 0) return;
+  currentProductId = id;
+
+  document.getElementById('m-img').style.backgroundImage = p.image ? `url('${p.image}')` : 'none';
+  document.getElementById('m-img').style.backgroundColor = p.image ? '' : 'var(--line-soft)';
+  document.getElementById('m-grade').textContent = `${p.grade} 등급`;
+  document.getElementById('m-exp').textContent = `EXP ${p.exp}`;
+  document.getElementById('m-name').textContent = p.name;
+  document.getElementById('m-price').textContent = won(p.discountPrice);
+
+  document.getElementById('b-qty').value = 1;
+  document.getElementById('b-qty').max = p.stock;
+  document.getElementById('b-max').textContent = p.stock;
+  document.getElementById('b-dept').value = '';
+  document.getElementById('b-name').value = '';
+  document.getElementById('agree-1').checked = false;
+  document.getElementById('agree-2').checked = false;
+
+  document.getElementById('purchase-modal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('purchase-modal').classList.remove('show');
+  currentProductId = null;
+}
+
+function changeQty(delta) {
+  const input = document.getElementById('b-qty');
+  const max = parseInt(input.max);
+  let v = parseInt(input.value) + delta;
+  if (v < 1) v = 1;
+  if (v > max) v = max;
+  input.value = v;
+}
+
+async function submitPurchase() {
+  const p = state.products.find(x => x.id === currentProductId);
+  if (!p) return;
+
+  const dept = document.getElementById('b-dept').value.trim();
+  const name = document.getElementById('b-name').value.trim();
+  const qty = parseInt(document.getElementById('b-qty').value);
+  const a1 = document.getElementById('agree-1').checked;
+  const a2 = document.getElementById('agree-2').checked;
+
+  if (!dept || !name) { toast('소속과 성명을 입력해주세요'); return; }
+  if (!qty || qty < 1) { toast('수량을 확인해주세요'); return; }
+  if (qty > p.stock) { toast(`재고가 부족합니다 (잔여 ${p.stock}개)`); return; }
+  if (!a1 || !a2) { toast('필수 동의 사항을 모두 체크해주세요'); return; }
+
+  const newOrderId = Date.now();
+  
+  // Record order
+  state.orders.push({
+    id: newOrderId,
+    productId: p.id,
+    productName: p.name,
+    dept, name, qty,
+    unitPrice: p.discountPrice,
+    total: p.discountPrice * qty,
+    status: 'pending',
+    createdAt: new Date().toISOString()
+  });
+
+  p.stock -= qty; // Decrease stock
+  
+  // Save ID locally for cancel function
+  saveMyOrder(newOrderId);
+  
+  closeModal();
+  renderStoreUI();
+  toast(`${name}님, ${qty}개 신청이 정상 접수되었습니다.`);
+  
+  // Fire API Save
+  await saveStateToServer();
+}
+
+async function cancelMyPurchase(productId) {
+  if(isSyncing) { toast("서버 통신 중입니다. 잠시만 기다려주세요."); return; }
+  
+  const product = state.products.find(p => p.id === productId);
+  if(!product) return;
+  
+  const myPendingOrders = state.orders.filter(o => o.productId === productId && o.status === 'pending' && myOrderIds.includes(o.id));
+  if(myPendingOrders.length === 0) return;
+  
+  const totalQtyToRestore = myPendingOrders.reduce((sum, o) => sum + o.qty, 0);
+
+  if(confirm(`'${product.name}' 구매 신청(${totalQtyToRestore}개)을 취소하시겠습니까?`)) {
+    product.stock += totalQtyToRestore;
+    
+    myPendingOrders.forEach(mo => {
+      state.orders = state.orders.filter(o => o.id !== mo.id);
+      removeMyOrder(mo.id); 
+    });
+
+    renderStoreUI();
+    if(isAdminAuthenticated) renderAdminUI();
+    toast("구매 신청이 정상적으로 취소되었습니다.");
+    
+    await saveStateToServer();
+  }
+}
+
+// =====================================================================
+//                          INLINE HOMEPAGE QR LOGIC
+// =====================================================================
+function generateInlineQR() {
+  const baseUrl = window.location.href.split('?')[0].split('#')[0];
+  const qrImg = document.getElementById('inline-qr-image');
+  if(qrImg) {
+    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(baseUrl)}&color=111827&bgcolor=ffffff`;
+  }
+}
+
+// =====================================================================
+//                          ADMIN — METRICS
+// =====================================================================
+function renderAdminUI() {
+  renderMetrics();
+  renderDispatch();
+  renderInventory();
+  updatePendingBadge();
+}
+
+function renderMetrics() {
+  const pendingOrders = state.orders.filter(o => o.status === 'pending');
+  const totalPendingQty = pendingOrders.reduce((s, o) => s + o.qty, 0);
+  const totalRevenue = state.orders.reduce((s, o) => s + o.total, 0);
+  const totalDispatched = state.orders.filter(o => o.status === 'done').reduce((s, o) => s + o.qty, 0);
+  const productsWithOrders = new Set(pendingOrders.map(o => o.productId)).size;
+
+  document.getElementById('metrics').innerHTML = `
+    <div class="metric">
+      <div class="metric-label">현재 출고 대기 (미처리)</div>
+      <div class="metric-value">${totalPendingQty}<small>개</small></div>
+      <div class="metric-meta"><b>${productsWithOrders}개</b> 품목 · 총 ${pendingOrders.length}건</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">출고 완료 (누적)</div>
+      <div class="metric-value">${totalDispatched}<small>개</small></div>
+      <div class="metric-meta">처리 완료된 상품 수량</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">총 매출 현황</div>
+      <div class="metric-value">${(totalRevenue / 10000).toFixed(1)}<small>만원</small></div>
+      <div class="metric-meta">${won(totalRevenue)}</div>
+    </div>
+  `;
+}
+
+function updatePendingBadge() {
+  const pending = state.orders.filter(o => o.status === 'pending').length;
+  document.getElementById('badge-pending').textContent = pending;
+  document.getElementById('badge-pending').style.display = pending ? '' : 'none';
+}
+
+// =====================================================================
+//                          ADMIN — DISPATCH (출고)
+// =====================================================================
+function renderDispatch() {
+  const groups = {};
+  state.orders.forEach(o => {
+    if (!groups[o.productId]) groups[o.productId] = [];
+    groups[o.productId].push(o);
+  });
+
+  const list = document.getElementById('dispatch-list');
+  const productIds = Object.keys(groups);
+
+  if (productIds.length === 0) {
+    list.innerHTML = `
+      <div class="dispatch-empty">
+        <div style="font-size:48px; color:var(--ink-4); margin-bottom:12px"><i class="fa-solid fa-inbox"></i></div>
+        <div style="font-size:18px; font-weight:700; color:var(--ink); margin-bottom:6px">아직 접수된 신청이 없습니다</div>
+        <div style="font-size:13px">임직원이 스토어에서 신청하면 이곳에 집계됩니다</div>
+      </div>`;
+    return;
+  }
+
+  productIds.sort((a, b) => {
+    const pa = groups[a].filter(o => o.status === 'pending').reduce((s, o) => s + o.qty, 0);
+    const pb = groups[b].filter(o => o.status === 'pending').reduce((s, o) => s + o.qty, 0);
+    return pb - pa;
+  });
+
+  list.innerHTML = productIds.map(pid => {
+    const orders = groups[pid];
+    const product = state.products.find(p => p.id == pid);
+    const pendingQty = orders.filter(o => o.status === 'pending').reduce((s, o) => s + o.qty, 0);
+    const doneQty = orders.filter(o => o.status === 'done').reduce((s, o) => s + o.qty, 0);
+    const totalRev = orders.reduce((s, o) => s + o.total, 0);
+    const buyers = orders.length;
+    const imgStyle = product && product.image ? `background-image:url('${product.image}')` : '';
+    const name = product ? product.name : orders[0].productName;
+
+    return `
+      <div class="dispatch-card" id="dc-${pid}">
+        <div class="dispatch-summary" onclick="toggleDispatch(${pid})">
+          <div class="dispatch-img" style="${imgStyle}"></div>
+          <div class="dispatch-info">
+            <h3>${escapeHtml(name)}</h3>
+            <div class="meta">
+              <span>총 ${buyers}건 신청</span>
+              <span>남은재고 ${product ? product.stock : '—'}개</span>
+              <span>매출 ${won(totalRev)}</span>
+            </div>
+          </div>
+          <div class="dispatch-stat">
+            <div class="v accent">${pendingQty}</div>
+            <div class="l">출고 필요 (대기)</div>
+          </div>
+          <div class="dispatch-stat">
+            <div class="v" style="color:var(--ok)">${doneQty}</div>
+            <div class="l">출고 완료</div>
+          </div>
+          <div class="dispatch-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+        </div>
+        <div class="dispatch-detail">
+          <div class="dispatch-detail-head">
+            <span>#</span>
+            <span>신청자</span>
+            <span>소속</span>
+            <span style="text-align:center">수량</span>
+            <span style="text-align:right">금액</span>
+            <span style="text-align:right">상태 변경</span>
+          </div>
+          ${orders.map((o, i) => `
+            <div class="dispatch-row ${o.status === 'done' ? 'done' : ''}">
+              <span class="num">${String(i + 1).padStart(2, '0')}</span>
+              <span class="name">${escapeHtml(o.name)}</span>
+              <span class="dept">${escapeHtml(o.dept)}</span>
+              <span class="qty">${o.qty}</span>
+              <span class="price">${won(o.total)}</span>
+              <span class="action">
+                <button class="mark-done ${o.status === 'done' ? 'done' : ''}" onclick="toggleOrderStatus(${o.id})">
+                  ${o.status === 'done' ? '✓ 완료' : '출고 처리'}
+                </button>
+              </span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleDispatch(pid) {
+  document.getElementById('dc-' + pid).classList.toggle('open');
+}
+
+async function toggleOrderStatus(orderId) {
+  if(isSyncing) { toast("서버 통신 중입니다. 잠시만 기다려주세요."); return; }
+  
+  const o = state.orders.find(x => x.id === orderId);
+  if (!o) return;
+  o.status = o.status === 'done' ? 'pending' : 'done';
+  
+  renderAdminUI();
+  toast(o.status === 'done' ? `${o.name}님 출고 처리 완료` : '출고 대기로 변경되었습니다');
+  
+  await saveStateToServer();
+}
+
+// =====================================================================
+//                          ADMIN — INVENTORY
+// =====================================================================
+function renderInventory() {
+  const q = (document.getElementById('inv-search')?.value || '').toLowerCase();
+  const list = state.products.filter(p => !q || p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+
+  document.getElementById('inv-tbody').innerHTML = list.length ? list.map(p => `
+    <div class="inv-row ${p.stock <= 0 ? 'sold' : ''}">
+      <div class="inv-img-cell" style="${p.image ? `background-image:url('${p.image}')` : ''}"></div>
+      <div class="inv-name">${escapeHtml(p.name)}<small>${escapeHtml(p.desc)}</small></div>
+      <div class="inv-cat">${escapeHtml(p.category)} · ${p.grade}등급</div>
+      <div class="inv-exp">${p.exp}</div>
+      <div class="inv-stock ${p.stock <= 0 ? 'zero' : ''}">${p.stock}개</div>
+      <div class="inv-price" style="color:var(--ink-4);text-decoration:line-through">${won(p.originalPrice)}</div>
+      <div class="inv-price text-blue-600">${won(p.discountPrice)}</div>
+      <div class="inv-actions">
+        <button class="icon-btn" onclick="adjustStock(${p.id}, 1)" title="재고 +1">+</button>
+        <button class="icon-btn" onclick="adjustStock(${p.id}, -1)" title="재고 -1">−</button>
+        <button class="icon-btn danger" style="margin-left:4px;" onclick="adminDeleteProduct(${p.id})" title="삭제">×</button>
+      </div>
+    </div>
+  `).join('') : `<div class="dispatch-empty">검색 결과가 없습니다</div>`;
+}
+
+async function adjustStock(id, delta) {
+  if(isSyncing) { toast("서버 통신 중입니다."); return; }
+  const p = state.products.find(x => x.id === id);
+  if (!p) return;
+  p.stock = Math.max(0, p.stock + delta);
+  
+  renderAdminUI();
+  await saveStateToServer();
+}
+
+async function adminDeleteProduct(id) {
+  if(isSyncing) { toast("서버 통신 중입니다."); return; }
+  const p = state.products.find(x => x.id === id);
+  if (!p) return;
+  const hasOrders = state.orders.some(o => o.productId === id);
+  const msg = hasOrders ? `'${p.name}' 제품을 삭제하시겠습니까?\n\n관련된 신청 내역도 함께 삭제됩니다.` : `'${p.name}' 제품을 삭제하시겠습니까?`;
+  if (!confirm(msg)) return;
+  
+  state.products = state.products.filter(x => x.id !== id);
+  state.orders = state.orders.filter(o => o.productId !== id);
+  
+  renderAdminUI();
+  toast('제품이 삭제되었습니다');
+  
+  await saveStateToServer();
+}
+
+// =====================================================================
+//                          ADMIN — REGISTER
+// =====================================================================
+function updateDiscount() {
+  const orig = parseInt(document.getElementById('reg-price-original').value);
+  const disc = parseInt(document.getElementById('reg-price-discount').value);
+  const display = document.getElementById('discount-display');
+  if (orig && disc && orig > disc) {
+    display.textContent = `${discountRate(orig, disc)}% 할인`;
+  } else {
+    display.textContent = '0%';
+  }
+}
+
+function previewImage(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    document.getElementById('upload-preview').src = ev.target.result;
+    document.getElementById('reg-image-b64').value = ev.target.result;
+    document.getElementById('upload-preview').style.display = 'block';
+    document.getElementById('upload-empty').style.display = 'none';
+    document.getElementById('upload-zone').classList.add('has-image');
+  };
+  reader.readAsDataURL(file); // Convert to Base64 String
+}
+
+function clearImage(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('upload-preview').src = '';
+  document.getElementById('reg-image-b64').value = '';
+  document.getElementById('upload-preview').style.display = 'none';
+  document.getElementById('upload-empty').style.display = 'block';
+  document.getElementById('upload-zone').classList.remove('has-image');
+  document.getElementById('reg-image-file').value = '';
+}
+
+async function handleRegister(e) {
+  e.preventDefault();
+  if(isSyncing) { toast("서버 통신 중입니다. 잠시만 기다려주세요."); return; }
+
+  const orig = parseInt(document.getElementById('reg-price-original').value);
+  const disc = parseInt(document.getElementById('reg-price-discount').value);
+  if (disc >= orig) { toast('판매가는 정상가보다 낮아야 합니다'); return; }
+
+  const newProduct = {
+    id: Date.now() % 100000,
+    name: document.getElementById('reg-name').value.trim(),
+    category: document.getElementById('reg-category').value,
+    grade: document.getElementById('reg-grade').value,
+    originalPrice: orig,
+    discountPrice: disc,
+    stock: parseInt(document.getElementById('reg-stock').value),
+    exp: document.getElementById('reg-exp').value,
+    desc: document.getElementById('reg-desc').value.trim(),
+    image: document.getElementById('reg-image-b64').value, // Use base64
+    created: new Date().toISOString().slice(0, 10)
+  };
+
+  state.products.unshift(newProduct);
+  
+  document.getElementById('register-form').reset();
+  document.getElementById('discount-display').textContent = '0%';
+  clearImage({preventDefault: ()=>{}, stopPropagation: ()=>{}});
+  
+  switchPane('inventory');
+  toast(`'${newProduct.name}' 등록 완료`);
+  
+  await saveStateToServer();
+}
+
+// =====================================================================
+//                          CSV EXPORT
+// =====================================================================
+function exportCSV() {
+  if (state.orders.length === 0) { toast('내보낼 신청 내역이 없습니다'); return; }
+  let csv = '\uFEFF신청일시,상품ID,상품명,소속,성명,수량,총액,처리상태\n';
+  state.orders.forEach(o => {
+    csv += [
+      new Date(o.createdAt).toLocaleString('ko-KR').replace(/,/g, ''),
+      o.productId,
+      `"${o.productName.replace(/"/g, '""')}"`,
+      `"${o.dept}"`,
+      `"${o.name}"`,
+      o.qty,
+      o.total,
+      o.status === 'done' ? '출고완료' : '대기'
+    ].join(',') + '\n';
+  });
+  const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `B-MARKET_접수내역_${new Date().toISOString().slice(0,10)}.csv`;
+  link.click();
+  toast('엑셀(CSV) 다운로드가 시작되었습니다');
+}
+
+// =====================================================================
+//                          TOAST
+// =====================================================================
+let toastTimer;
+function toast(msg) {
+  document.getElementById('toast-msg').textContent = msg;
+  document.getElementById('toast').classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => document.getElementById('toast').classList.remove('show'), 3000);
+}
+
+// =====================================================================
+//                          INIT
+// =====================================================================
+// 모든 모달창 외부(어두운 배경) 클릭 시 닫히도록 설정
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      closeModal();
+      closeAdminAuth();
+    }
+  });
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+      closeModal();
+      closeAdminAuth();
+  }
+});
+
+// App Start
+generateInlineQR();
+fetchStateFromServer(); 
+
+</script>
+</body>
+</html>
