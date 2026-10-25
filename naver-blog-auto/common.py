@@ -28,18 +28,18 @@ class Post:
     path: Path
     title: str
     tags: list = field(default_factory=list)
-    # 본문 블록: ("text", "문단") 또는 ("image", Path)
+    # 본문 블록: ("text", 문단) / ("heading", 소제목) / ("divider", "") / ("image", Path)
     blocks: list = field(default_factory=list)
 
 
 IMAGE_RE = re.compile(r"^!\[[^\]]*\]\(([^)]+)\)\s*$")
+HEADING_RE = re.compile(r"^#{1,6}\s+(.+)$")
 
 
-def _strip_markdown(line: str) -> str:
-    line = re.sub(r"^#{1,6}\s*", "", line)          # 제목 기호
-    line = re.sub(r"\*\*(.+?)\*\*", r"\1", line)     # 굵게
-    line = re.sub(r"(?<!\*)\*(?!\*)(.+?)\*", r"\1", line)  # 기울임
-    line = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r"\1 (\2)", line)  # 링크
+def _clean_inline(line: str) -> str:
+    """**굵게**, __밑줄__ 표시는 post.py 가 서식으로 바꾸므로 남기고 나머지만 정리."""
+    line = re.sub(r"(?<![*_])\*(?![*\s])(.+?)(?<![*\s])\*(?!\*)", r"\1", line)  # *기울임*
+    line = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r"\1 \2", line)  # [링크](url)
     return line
 
 
@@ -50,7 +50,12 @@ def parse_post(path: Path) -> Post:
         title: 글 제목
         tags: 태그1, 태그2
         ---
-        본문 (마크다운 일부 지원, ![](images/a.jpg) 로 이미지 삽입)
+        본문
+    본문에서 지원하는 표시:
+        ## 소제목        → 굵은 소제목 (▍소제목)
+        **굵게**, __밑줄__ → 굵게 / 밑줄
+        ---             → 구분선(빈 줄 두 개)
+        ![](사진.jpg)    → 사진 업로드
     """
     text = path.read_text(encoding="utf-8")
     meta = {}
@@ -76,6 +81,13 @@ def parse_post(path: Path) -> Post:
             if not img_path.exists() and fallback.exists():
                 img_path = fallback
             blocks.append(("image", img_path))
+            continue
+        stripped = raw.strip()
+        heading = HEADING_RE.match(stripped)
+        if heading:
+            blocks.append(("heading", heading.group(1).replace("**", "")))
+        elif re.fullmatch(r"-{3,}|\*{3,}", stripped):
+            blocks.append(("divider", ""))
         else:
-            blocks.append(("text", _strip_markdown(raw.rstrip())))
+            blocks.append(("text", _clean_inline(raw.rstrip())))
     return Post(path=path, title=title, tags=tags, blocks=blocks)

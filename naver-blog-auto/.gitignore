@@ -2,3 +2,5 @@
 .naver-profile/
 error.png
 __pycache__/
+# 다른 사람 블로그 글(참고용)은 저장소에 올리지 않음
+visits/**/reference.txt

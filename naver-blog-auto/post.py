@@ -11,6 +11,7 @@
 import argparse
 import os
 import random
+import re
 import shutil
 import sys
 import time
@@ -56,12 +57,30 @@ def open_editor(page, blog_id):
     return editor
 
 
+INLINE_RE = re.compile(r"(\*\*|__)")
+FORMAT_KEYS = {"**": "ControlOrMeta+B", "__": "ControlOrMeta+U"}
+
+
 def type_text(page, text):
-    """한 줄씩 입력. 빈 줄은 문단 띄우기."""
-    if text:
-        page.keyboard.insert_text(text)
+    """한 줄 입력. **굵게** / __밑줄__ 은 단축키로 서식을 켜고 끈다. 빈 줄은 문단 띄우기."""
+    active = set()
+    for part in INLINE_RE.split(text):
+        if part in FORMAT_KEYS:
+            page.keyboard.press(FORMAT_KEYS[part])
+            active ^= {part}
+        elif part:
+            page.keyboard.insert_text(part)
+    for mark in active:  # 닫히지 않은 서식은 끄고 줄바꿈
+        page.keyboard.press(FORMAT_KEYS[mark])
     page.keyboard.press("Enter")
     pause(0.05, 0.25)
+
+
+def type_heading(page, text):
+    """소제목: 앞뒤로 한 줄씩 띄우고 굵게."""
+    page.keyboard.press("Enter")
+    type_text(page, f"**▍{text}**")
+    page.keyboard.press("Enter")
 
 
 def insert_image(page, editor, img_path: Path):
@@ -98,8 +117,20 @@ def fill_post(page, editor, post):
     for kind, value in post.blocks:
         if kind == "image":
             insert_image(page, editor, value)
+        elif kind == "heading":
+            type_heading(page, value)
+        elif kind == "divider":
+            page.keyboard.press("Enter")
+            page.keyboard.press("Enter")
         else:
             type_text(page, value)
+
+    # .env 의 SIGNATURE (글 끝 인사말). 줄바꿈은 \n 으로 적는다.
+    signature = os.environ.get("SIGNATURE", "").replace("\\n", "\n")
+    if signature:
+        page.keyboard.press("Enter")
+        for line in signature.splitlines():
+            type_text(page, line)
 
 
 def save_draft(editor):
