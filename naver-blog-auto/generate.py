@@ -17,6 +17,8 @@ Claude API 로 블로그 글 초안을 만들어 posts/ 폴더에 저장합니�
         memo.txt        ← 필수. 내가 직접 보고 느낀 것 (templates/ 의 양식 참고)
         *.jpg / *.png   ← 내가 찍은 사진 (파일 이름 순서대로 전달)
         reference.txt   ← 선택. 참고하고 싶은 다른 블로그 글 본문 (구성·말투만 참고, 유사도 검사에 사용)
+
+references/food_style_guide.md (festival_style_guide.md) 가 있으면 글 스타일 가이드로 함께 전달됩니다.
 """
 import argparse
 import base64
@@ -142,6 +144,12 @@ def build_visit_content(kind: str, folder: Path):
 
     prompt = FOOD_PROMPT if kind == "food" else FESTIVAL_PROMPT
     content = [{"type": "text", "text": prompt}]
+    guide_path = BASE_DIR / "references" / f"{kind}_style_guide.md"
+    if guide_path.exists():
+        content.append({"type": "text", "text":
+                        "[스타일 가이드] 사진 배치·문단 길이·강조·태그는 이 가이드를 따르라. "
+                        "가이드의 예시 가게는 가상의 예시일 뿐이니 내용에 쓰지 마라.\n"
+                        + guide_path.read_text(encoding="utf-8")})
     if reference:
         content.append({"type": "text", "text":
                         "[참고 글] (구성과 말투만 참고. 문장·표현·사실을 가져오지 말 것)\n" + reference})
